@@ -1,0 +1,1 @@
+export const placeholder = 'https://th.bing.com/th/id/OIP.LKcCAJTYw9ClrgUYBOHNqQHaLG?pid=Api&w=120.60000000000001&h=180&c=7'
