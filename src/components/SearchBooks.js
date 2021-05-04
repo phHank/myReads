@@ -18,11 +18,13 @@ const SearchBooks = ({handleSearch, changeShelf, query, results}) => {
     </div>
     <div className="search-books-results">
       
-      <BookList 
-        books={ !results ? undefined : results }
-        changeShelf={changeShelf}
-        query={query} 
-      />  
+      {query !== "" && (
+        <BookList 
+          books={ !results ? undefined : results }
+          changeShelf={changeShelf}
+          query={query} 
+        />  
+      )}
 
     </div>
   </div>
