@@ -12,7 +12,7 @@ const SearchBooks = ({handleSearch, changeShelf, query, results}) => {
         <input 
           type="text" 
           placeholder="Search by title or author"
-          onChange={ ({target}) => handleSearch(target.value)}
+          onChange={ ({target}) => setTimeout(() => handleSearch(target.value), 250)}
         />
       </div>
     </div>

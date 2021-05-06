@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 
 import * as BooksAPI from './BooksAPI'
 
@@ -7,6 +7,7 @@ import './App.css'
 
 import ListBooks from './components/ListBooks'
 import SearchBooks from './components/SearchBooks'
+import NotFound from './components/NotFound'
 
 class App extends React.Component {
   state = {
@@ -37,15 +38,29 @@ class App extends React.Component {
       })
   }
 
-  onSearch = searchTerm => {
+  onSearch = async searchTerm => {
     this.setState(() => ({
         query: searchTerm
     }))
 
     // only performs search if query length is > 0 
     if (this.state.query.length > 0) {
-      BooksAPI.search(this.state.query)
-        .then(books => this.setState(() => ({searchResults: books})))
+      const resultBooks = await BooksAPI.search(this.state.query)
+      
+      const bookIds = this.state.books.map(book => book.id)
+
+      if (resultBooks.error) {
+        this.setState(() => ({searchResults: resultBooks}))
+      } else {
+        // merge listed books with search results
+        const mergedResults = resultBooks.map(book => (
+          bookIds.includes(book.id) 
+            ? this.state.books.filter(bk => bk.id === book.id)[0]
+            : book
+        ))
+        
+        this.setState(() => ({searchResults: mergedResults}))
+      }
     }
   }
   
@@ -54,24 +69,27 @@ class App extends React.Component {
       <div className="app">
         {this.state.error && <h4>Error: Book shelf could not be moved. Server responded with error.</h4>}
         
-        <Route exact path='/' render={() => (
-            <ListBooks 
-              books={this.state.books} 
-              changeShelf={this.changeBookShelf} 
-            />
-          )}
-        />
+        <Switch>
+          <Route exact path='/' render={() => (
+              <ListBooks 
+                books={this.state.books} 
+                changeShelf={this.changeBookShelf} 
+              />
+            )}
+          />
 
-        <Route path='/search' render={() =>(
-            <SearchBooks 
-              changeShelf={this.changeBookShelf}
-              results={this.state.searchResults}
-              handleSearch={this.onSearch}
-              query={this.state.query}
-            />
-          )}
-        />
+          <Route path='/search' render={() =>(
+              <SearchBooks 
+                changeShelf={this.changeBookShelf}
+                results={this.state.searchResults}
+                handleSearch={this.onSearch}
+                query={this.state.query}
+              />
+            )}
+          />
 
+          <Route component={NotFound} />
+        </Switch>
       </div>
     )
   }
